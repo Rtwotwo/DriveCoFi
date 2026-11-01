@@ -1,0 +1,49 @@
+# Local environments and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Python and tooling
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+.idea/
+.vscode/
+
+# Datasets, model weights, caches and experiment output
+dataset/
+datasets/
+weights/
+checkpoints/
+exp/
+outputs/
+results/
+wandb/
+lightning_logs/
+multirun/
+viz/output/
+viz/csv/
+*.ckpt
+*.pth
+*.pt
+*.safetensors
+*.npz
+*.pkl
+*.pickle
+
+# Local benchmark splits that are not for redistribution
+navsim/planning/script/config/common/train_test_split/scene_filter/competition_private_tokens.yaml
+download/download_private_test_e2e.sh
+
+# Generated or backup source files
+*.bak
+*.bak_*
+*.log

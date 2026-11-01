@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f8fb">
+  <meta name="description" content="CoFiDrive combines scene-conditioned register refinement, cross-compression trajectory scoring and training-only control-space augmentation for end-to-end driving.">
+  <title>CoFiDrive | Scene-Conditioned Registers for End-to-End Driving</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="header-inner wrap">
+      <a class="brand" href="#top" aria-label="CoFiDrive home">
+        <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+        <span>CoFi<span>Drive</span></span>
+      </a>
+      <nav class="main-nav" aria-label="Main navigation">
+        <a href="#overview">Overview</a>
+        <a href="#method">Method</a>
+        <a href="#evidence">Evidence</a>
+        <a href="#results">Results</a>
+      </nav>
+      <a class="header-cta" href="https://github.com/Rtwotwo/DriveCoFi" target="_blank" rel="noreferrer">Code <span aria-hidden="true">↗</span></a>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero wrap" id="top" aria-labelledby="hero-title">
+      <p class="eyebrow"><span class="eyebrow-dot"></span> Vision-based end-to-end driving · NAVSIM</p>
+      <h1 id="hero-title">CoFi<span>Drive</span></h1>
+      <p class="hero-deck">Scene-Conditioned Registers and<br>Coarse-to-Fine Trajectory Scoring</p>
+      <p class="hero-copy">Keep trajectory generation compact. Give each proposal the local visual evidence needed for scoring.</p>
+      <div class="hero-actions">
+        <a class="button button-primary" href="#overview">Explore the method <span aria-hidden="true">↓</span></a>
+        <a class="button button-outline" href="https://github.com/Rtwotwo/DriveCoFi" target="_blank" rel="noreferrer">Browse code <span aria-hidden="true">↗</span></a>
+      </div>
+      <div class="hero-visual" aria-label="NAVSIM intersection with generated and selected trajectories">
+        <img src="./assets/images/Figure2_2.webp" alt="CoFiDrive's generated trajectories and selected path at an urban intersection, with a bird's-eye map on the right" fetchpriority="high">
+        <div class="hero-visual-note"><span class="legend-line legend-blue"></span> proposals <span class="legend-line legend-gold"></span> selected path <span class="legend-line legend-white"></span> reference</div>
+      </div>
+      <p class="image-credit">Illustrative NAVSIM-v1 scene. The selected example is qualitative, not a closed-loop safety result.</p>
+    </section>
+
+    <div class="quick-facts" aria-label="Model at a glance">
+      <div class="wrap facts-grid">
+        <div><strong>4 × 16</strong><span>camera registers</span></div>
+        <div><strong>64</strong><span>scene tokens</span></div>
+        <div><strong>1,008</strong><span>pooled patch tokens for scoring</span></div>
+        <div><strong>64</strong><span>proposals at inference</span></div>
+      </div>
+    </div>
+
+    <section class="section wrap" id="overview" aria-labelledby="overview-title">
+      <div class="section-heading">
+        <div><p class="kicker">01 / Overview</p><h2 id="overview-title">Two visual scales.<br><span>One ranked plan.</span></h2></div>
+        <p>The generator reads a compact scene memory. The scorer uses the same memory alongside pooled image patches to distinguish nearby proposals. Training-only augmentation supplies additional motion alternatives without changing inference.</p>
+      </div>
+      <figure class="architecture card">
+        <button class="figure-open" type="button" data-full="./assets/source/Figure1.svg" data-alt="Complete CoFiDrive architecture diagram" aria-label="Enlarge the architecture diagram">
+          <img src="./assets/source/Figure1.svg" alt="CoFiDrive architecture: four cameras yield 64 registers, TC refines them, CCS ranks generated proposals with pooled patch evidence, and CSA augments scorer training" loading="lazy">
+          <span class="zoom-hint">Enlarge figure ↗</span>
+        </button>
+        <figcaption><strong>CoFiDrive overview.</strong> The upper path is used at inference; the lower CSA path is training-only. <a href="./assets/source/Figure1.pdf" download>Download the figure as PDF ↗</a></figcaption>
+      </figure>
+    </section>
+
+    <section class="section section-tinted" id="method" aria-labelledby="method-title">
+      <div class="wrap">
+        <div class="section-heading">
+          <div><p class="kicker">02 / Method</p><h2 id="method-title">Refine context.<br><span>Inspect detail.</span></h2></div>
+          <p>CoFiDrive has three connected operations. They change the representation, the scoring evidence, and the scorer's training set respectively.</p>
+        </div>
+        <div class="method-grid">
+          <article class="method-card card">
+            <div class="method-head"><span class="method-number">01</span><span class="method-tag">representation</span></div>
+            <div class="token-visual" aria-hidden="true"><i></i><i></i><i></i><i></i><b>→</b><i></i><i></i><i></i><i></i></div>
+            <h3>TC <small>Semantic Token Compressor</small></h3>
+            <p>A scene-level router softly mixes six active SwiGLU experts over the camera registers. TC refines 64 tokens; it does not perform the initial token reduction.</p>
+          </article>
+          <article class="method-card card">
+            <div class="method-head"><span class="method-number">02</span><span class="method-tag">inference scoring</span></div>
+            <div class="fusion-visual" aria-hidden="true"><span class="fusion-scene">scene</span><span class="fusion-plus">+</span><span class="fusion-patch">patch</span><span class="fusion-arrow">→</span><span class="fusion-gate">gate</span></div>
+            <h3>CCS <small>Cross-Compression Scorer</small></h3>
+            <p>Each candidate attends to refined scene tokens and pooled patch features. A candidate-dependent gate fuses the two responses before score prediction.</p>
+          </article>
+          <article class="method-card card">
+            <div class="method-head"><span class="method-number">03</span><span class="method-tag">training only</span></div>
+            <div class="trajectory-visual" aria-hidden="true"><svg viewBox="0 0 240 60"><path d="M8 51 C55 49 90 38 131 29 S194 17 230 9"/><path d="M8 51 C56 48 92 34 131 21 S195 12 230 13"/><path d="M8 51 C55 51 92 43 131 36 S195 29 230 20"/></svg></div>
+            <h3>CSA <small>Control-Space Augmentation</small></h3>
+            <p>Top-ranked proposals seed acceleration and yaw-rate perturbations. Bicycle-model rollouts expand auxiliary scorer training; inference remains at 64 proposals.</p>
+          </article>
+        </div>
+        <div class="method-note"><span class="note-icon" aria-hidden="true">↳</span><p><strong>Inference stays fixed.</strong> CSA and PDM target computation are absent at test time. The same CCS ranks the generator's original 64 proposals.</p></div>
+      </div>
+    </section>
+
+    <section class="section wrap" id="evidence" aria-labelledby="evidence-title">
+      <div class="section-heading">
+        <div><p class="kicker">03 / Visual evidence</p><h2 id="evidence-title">An intersection,<br><span>two selections.</span></h2></div>
+        <p>On one NAVSIM-v1 scene, both planners observe the same intersection. Each produces its own proposals; the panels are a qualitative comparison of complete planners, not a fixed-candidate scorer test.</p>
+      </div>
+      <div class="comparison-grid">
+        <figure class="compare-card card"><div class="compare-label">DrivoR · reference planner</div><button type="button" class="figure-open" data-full="./assets/images/Figure2_1.webp" data-alt="DrivoR trajectory proposals at the NAVSIM intersection" aria-label="Enlarge the DrivoR visualization"><img src="./assets/images/Figure2_1.webp" alt="DrivoR trajectories projected onto the camera view and bird's-eye map" loading="lazy"></button><figcaption>Generated proposals in blue; the selected trajectory in yellow.</figcaption></figure>
+        <figure class="compare-card card"><div class="compare-label accent">CoFiDrive · proposed planner</div><button type="button" class="figure-open" data-full="./assets/images/Figure2_2.webp" data-alt="CoFiDrive trajectory proposals at the NAVSIM intersection" aria-label="Enlarge the CoFiDrive visualization"><img src="./assets/images/Figure2_2.webp" alt="CoFiDrive trajectories projected onto the same intersection camera view and bird's-eye map" loading="lazy"></button><figcaption>Here, the selected trajectory follows the reference path more closely.</figcaption></figure>
+      </div>
+      <div class="attention-block">
+        <div class="attention-intro"><div><p class="kicker">Register attention</p><h3>Where the compact memory looks</h3></div><p>Selected front and rear camera maps for register indices 0, 4, 8, and 12. These illustrate attention patterns in the displayed scenes; they are not a quantitative attribution test.</p></div>
+        <div class="attention-tabs" role="tablist" aria-label="Attention figure view"><button type="button" class="active" role="tab" aria-selected="true" data-view="front">Front and rear · panel 1</button><button type="button" role="tab" aria-selected="false" data-view="rear">Front and rear · panel 2</button></div>
+        <figure class="attention-figure card"><button type="button" class="figure-open" id="attention-open" data-full="./assets/images/Figure3_1_new.webp" data-alt="Register attention maps, panel 1" aria-label="Enlarge register attention maps"><img id="attention-img" src="./assets/images/Figure3_1_new.webp" alt="Register attention maps comparing DrivoR and CoFiDrive, panel 1" loading="lazy"></button><figcaption>Rows: DrivoR above, CoFiDrive below. Columns: RGB, four registers, and mean attention.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="section section-results" id="results" aria-labelledby="results-title">
+      <div class="wrap">
+        <div class="section-heading"><div><p class="kicker">04 / Results</p><h2 id="results-title">Scores with<br><span>their protocol.</span></h2></div><p>All reported models train for 10 epochs. NAVSIM-v1 uses PDMS; NAVSIM-v2 NavHard uses the two-stage EPDMS protocol. Higher scores are better.</p></div>
+        <div class="score-grid">
+          <div class="score-card card"><span>NAVSIM-v1 · navtest</span><strong>92.4</strong><p>PDMS · train85k<br>mean of three training seeds</p></div>
+          <div class="score-card card"><span>NAVSIM-v1 · navtest</span><strong>92.9</strong><p>PDMS · trainval103k<br>10-epoch training</p></div>
+          <div class="score-card card"><span>NAVSIM-v2 · NavHard</span><strong>48.0</strong><p>EPDMS · two-stage protocol<br>10-epoch training</p></div>
+        </div>
+        <div class="ablation card"><div class="ablation-heading"><div><p class="kicker">Sequential component ablation</p><h3>Each step changes one part of the full system.</h3></div><p>NAVSIM-v1 navtest · train85k · 10 epochs. These configuration-level scores are not the three-seed main-result aggregate.</p></div><div class="ablation-row"><div><span>Base planner</span><b>91.70</b></div><div><span>+ TC</span><b>91.80</b></div><div><span>+ Dual-Channel CCS</span><b>91.90</b></div><div><span>+ CSA</span><b>92.40</b></div></div><p class="ablation-foot">PDMS ↑ · CSA is training-only; it does not add inference candidates or model parameters.</p></div>
+      </div>
+    </section>
+
+    <section class="section wrap" id="code" aria-labelledby="code-title">
+      <div class="resource-card"><div><p class="kicker">05 / Open source</p><h2 id="code-title">Explore the implementation.</h2><p>Hydra agent configs, training and evaluation entry points, setup instructions and selected manuscript figures are packaged with the release. The benchmark datasets and pretrained weights are obtained separately.</p><div class="resource-actions"><a class="button button-primary" href="https://github.com/Rtwotwo/DriveCoFi" target="_blank" rel="noreferrer">View repository ↗</a><a class="button button-outline" href="https://github.com/Rtwotwo/DriveCoFi#installation" target="_blank" rel="noreferrer">Installation guide ↗</a></div></div><div class="resource-code" aria-hidden="true"><span>agent=more_ccs</span><span>train85k · 10 epochs</span><span>64 proposals at inference</span></div></div>
+    </section>
+  </main>
+
+  <footer class="site-footer"><div class="wrap footer-inner"><div><strong>CoFiDrive</strong><span>Scene-conditioned registers for end-to-end driving.</span></div><a href="#top">Back to top ↑</a></div><div class="wrap footer-bottom">Built from the CoFiDrive manuscript figures and NAVSIM visualizations. Source-code and data attribution are documented in the repository.</div></footer>
+
+  <dialog id="figure-dialog" aria-label="Enlarged figure"><button type="button" class="dialog-close" aria-label="Close enlarged figure">×</button><img id="dialog-image" src="" alt=""><p id="dialog-caption"></p></dialog>
+  <script src="./script.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+_target_: navsim.agents.more_dual.drivor_agent.DrivoRAgent
+
+config:
+  b2d: false
+  shared_refiner: false
+  ref_num: 4
+  scorer_ref_num: 4
+  proposal_num: 64
+  num_poses: 8
+  num_scene_tokens: 16
+  one_token_per_traj: true
+  full_history_status: false
+  long_trajectory_additional_poses: -1
+
+  scorer_raw_tokens:
+    enabled: true
+    pool_height: 12
+    pool_width: 21
+    include_scene_tokens: true
+    detach_patch_backbone: true
+
+  noc: 1.0
+  dac: 1.0
+  ddc: 0.0
+  ttc: 5.0
+  ep: 5.0
+  comfort: 2.0
+
+  tf_d_model: 256
+  tf_d_ffn: 1024
+
+  cam_f0: [3]
+  cam_l0: [3]
+  cam_l1: []
+  cam_l2: []
+  cam_r0: [3]
+  cam_r1: []
+  cam_r2: []
+  cam_b0: [3]
+  lidar_pc: []
+
+  image_size: [1148, 672]
+  image_backbone:
+    model_name: timm/vit_small_patch14_reg4_dinov2.lvd142m
+    model_weights: weights/vit_small_patch14_reg4_dinov2.lvd142m/model.safetensors
+    use_lora: true
+    finetune: false
+    lora_rank: 32
+    focus_front_cam: false
+    use_feature_pooling: false
+    compress_fc: false
+
+  moe:
+    enabled: true
+    d_ffn: 1024
+    num_experts: 6
+    dropout: 0.1
+    jitter_noise: 0.1
+
+  lidar_min_x: -35
+  lidar_max_x: 35
+  lidar_min_y: -35
+  lidar_max_y: 35
+  lidar_image_size: [518, 518]
+  lidar_hist_max_per_pixel: 5
+  lidar_max_height: 100.0
+  lidar_split_height: 0.2
+  lidar_use_ground_plane: true
+  lidar_backbone:
+    model_name: timm/vit_small_patch14_reg4_dinov2.lvd142m
+    model_weights: weights/vit_small_patch14_reg4_dinov2.lvd142m/model.safetensors
+    use_lora: true
+    finetune: false
+    lora_rank: 32
+    in_chans: 2
+
+  double_score: false
+  agent_pred: false
+  area_pred: false
+  bev_map: false
+  bev_agent: false
+  refiner_num_heads: 1
+  refiner_ls_values: 0.0
+
+  trajectory_sampling:
+    _target_: nuplan.planning.simulation.trajectory.trajectory_sampling.TrajectorySampling
+    time_horizon: 4
+    interval_length: 0.5
+
+loss:
+  _target_: navsim.agents.more_dual.layers.losses.drivor_loss.DrivoRLoss
+  trajectory_weight: 1.0
+  inter_weight: 0.0
+  sub_score_weight: 0.0
+  final_score_weight: 1.0
+  pred_ce_weight: 1.0
+  pred_l1_weight: 0.1
+  pred_area_weight: 2.0
+  prev_weight: 0.0
+  agent_class_weight: 1.0
+  agent_box_weight: 0.1
+  bev_semantic_weight: 1.0
+  div_weight: 0.0
+  load_balance_weight: 0.01
+  entropy_weight: 0.001
+  num_moe_experts: 6
+
+checkpoint_path: ''
+lr_args:
+  name: AdamW
+  base_lr: 5e-4
+  base_batch_size: 64
+scheduler_args:
+  num_epochs: ${trainer.params.max_epochs}
+  dataset_size: 85109
+
+batch_size: ${dataloader.params.batch_size}
+num_gpus: 1
+pdm_workers_per_rank: 16
+progress_bar: true
