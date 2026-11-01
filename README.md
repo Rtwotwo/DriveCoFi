@@ -1,9 +1,9 @@
 <h1 align="center">CoFiDrive: Scene-Conditioned Registers and<br>Coarse-to-Fine Trajectory Scoring for End-to-End Driving</h1>
 
 <p align="center">
-  <a href="https://github.com/Rtwotwo/DriveCoFi"><img src="https://img.shields.io/badge/Code-GitHub-24292f?logo=github&amp;logoColor=white" alt="Code" height="22"></a>
-  <img src="https://img.shields.io/badge/arXiv-b31b1b?logo=arxiv&amp;logoColor=white" alt="arXiv (link forthcoming)" title="Paper link forthcoming" height="22">
-  <img src="https://img.shields.io/badge/Hugging%20Face-FFD21E?logo=huggingface&amp;logoColor=black" alt="Hugging Face (weights forthcoming)" title="Weights link forthcoming" height="22">
+  <a href="https://github.com/Rtwotwo/DriveCoFi"><img src="site/assets/badges/code.svg" alt="Code" height="22"></a>
+  <img src="site/assets/badges/arxiv.svg" alt="arXiv (link forthcoming)" title="Paper link forthcoming" height="22">
+  <img src="site/assets/badges/huggingface.svg" alt="Hugging Face (weights forthcoming)" title="Weights link forthcoming" height="22">
 </p>
 
 ## Overview
@@ -66,9 +66,9 @@ CoFiDrive and the local DrivoR baseline use the same 10-epoch training and evalu
 Four scenes from the paper. Each column compares DrivoR and CoFiDrive on the same scene; each planner generates and scores its own candidates. Blue curves show proposals, yellow marks the selected trajectory, and white is the reference where shown.
 
 <table>
-  <tr><th width="25%">Straight</th><th width="25%">Left turn</th><th width="25%">Right turn</th><th width="25%">Additional scene</th></tr>
-  <tr><td><img src="site/assets/gallery/straight-1-drivor.webp" alt="DrivoR: Straight" width="100%"><br>DrivoR</td><td><img src="site/assets/gallery/left-turn-1-drivor.webp" alt="DrivoR: Left turn" width="100%"><br>DrivoR</td><td><img src="site/assets/gallery/right-turn-1-drivor.webp" alt="DrivoR: Right turn" width="100%"><br>DrivoR</td><td><img src="site/assets/gallery/additional-1-drivor.webp" alt="DrivoR: Additional scene" width="100%"><br>DrivoR</td></tr>
-  <tr><td><img src="site/assets/gallery/straight-1-cofidrive.webp" alt="CoFiDrive: Straight" width="100%"><br>CoFiDrive</td><td><img src="site/assets/gallery/left-turn-1-cofidrive.webp" alt="CoFiDrive: Left turn" width="100%"><br>CoFiDrive</td><td><img src="site/assets/gallery/right-turn-1-cofidrive.webp" alt="CoFiDrive: Right turn" width="100%"><br>CoFiDrive</td><td><img src="site/assets/gallery/additional-1-cofidrive.webp" alt="CoFiDrive: Additional scene" width="100%"><br>CoFiDrive</td></tr>
+  <tr><th width="25%">Straight</th><th width="25%">Left turn</th><th width="25%">Right turn</th><th width="25%">Straight · Scene 2</th></tr>
+  <tr><td><img src="site/assets/gallery/straight-1-drivor.webp" alt="DrivoR: Straight" width="100%"><br>DrivoR</td><td><img src="site/assets/gallery/left-turn-1-drivor.webp" alt="DrivoR: Left turn" width="100%"><br>DrivoR</td><td><img src="site/assets/gallery/right-turn-1-drivor.webp" alt="DrivoR: Right turn" width="100%"><br>DrivoR</td><td><img src="site/assets/gallery/straight-2-drivor.webp" alt="DrivoR: Straight · Scene 2" width="100%"><br>DrivoR</td></tr>
+  <tr><td><img src="site/assets/gallery/straight-1-cofidrive.webp" alt="CoFiDrive: Straight" width="100%"><br>CoFiDrive</td><td><img src="site/assets/gallery/left-turn-1-cofidrive.webp" alt="CoFiDrive: Left turn" width="100%"><br>CoFiDrive</td><td><img src="site/assets/gallery/right-turn-1-cofidrive.webp" alt="CoFiDrive: Right turn" width="100%"><br>CoFiDrive</td><td><img src="site/assets/gallery/straight-2-cofidrive.webp" alt="CoFiDrive: Straight · Scene 2" width="100%"><br>CoFiDrive</td></tr>
 </table>
 
 ### Register attention
