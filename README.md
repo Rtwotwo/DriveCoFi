@@ -6,17 +6,15 @@
   <img src="site/assets/badges/huggingface.svg" alt="Hugging Face (weights forthcoming)" title="Weights link forthcoming" height="22">
 </p>
 
+## News
+
+- [ ] **2026.11.01** — Training, evaluation and visualization code released.
+
 ## Overview
 
-CoFiDrive is a camera-based driving planner that combines scene-conditioned register features, dual-memory trajectory scoring and training-only control-space augmentation.
-
-- **TC (Semantic Token Compressor)** refines 64 camera registers through scene-conditioned mixing of six experts. The refined tokens support both trajectory generation and scoring.
-- **CCS (Cross-Compression Scorer)** combines scene tokens with spatial patch features through candidate-dependent gated attention to score motion alternatives.
-- **CSA (Control-Space Augmentation)** perturbs the acceleration and yaw rate of selected proposals to expand scorer supervision. It is used only during training.
-
-At inference, the planner generates and scores 64 proposals. CSA adds no inference candidates or model parameters.
-
 <img src="site/assets/images/Figure1.webp" alt="CoFiDrive architecture: TC refines camera registers, CCS uses scene and patch memories, and CSA expands scorer training" width="100%">
+
+CoFiDrive is a camera-based driving planner that combines scene-conditioned register features, dual-memory trajectory scoring and training-only control-space augmentation. **TC (Semantic Token Compressor)** refines 64 camera registers through scene-conditioned mixing of six experts, and the refined tokens support both trajectory generation and scoring. **CCS (Cross-Compression Scorer)** combines scene tokens with spatial patch features through candidate-dependent gated attention to score motion alternatives. **CSA (Control-Space Augmentation)** perturbs the acceleration and yaw rate of selected proposals to expand scorer supervision, and is used only during training. At inference, the planner generates and scores 64 proposals; CSA adds no inference candidates or model parameters.
 
 ## Results
 
@@ -24,40 +22,93 @@ At inference, the planner generates and scores 64 proposals. CSA adds no inferen
 
 Results follow the manuscript's main comparison. CoFiDrive uses 10 training epochs; other methods retain their reported protocols. All metrics are on a 0–100 scale.
 
-| Method | NC | DAC | TTC | Comfort | EP | PDMS ↑ |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Ego-stat. MLP | 93.0 | 77.3 | 83.6 | 100.0 | 62.8 | 65.6 |
-| UniVLA (base) | 96.9 | 91.1 | 91.7 | 96.7 | 76.8 | 81.7 |
-| UniAD | 97.8 | 91.9 | 92.9 | 100.0 | 78.8 | 83.4 |
-| LTF | 97.4 | 92.8 | 92.4 | 100.0 | 79.0 | 83.8 |
-| PARA-Drive | 97.9 | 92.4 | 93.0 | 99.8 | 79.3 | 84.0 |
-| DriveX-S | 97.5 | 94.0 | 93.0 | 100.0 | 79.7 | 84.5 |
-| World4Drive | 97.4 | 94.3 | 92.8 | 100.0 | 79.9 | 85.1 |
-| DRAMA | 98.0 | 93.1 | 94.8 | 100.0 | 80.1 | 85.5 |
-| PRIX | 98.1 | 96.3 | 94.1 | 100.0 | 82.3 | 87.8 |
-| DiffusionDrive | 98.2 | 96.2 | 94.7 | 100.0 | 82.2 | 88.1 |
-| DIVER | 98.5 | 96.5 | 94.9 | 100.0 | 82.6 | 88.3 |
-| AutoVLA (Post-RFT) | 98.4 | 95.6 | 98.0 | 99.9 | 81.9 | 89.1 |
-| VADv2 | 98.3 | 97.4 | 95.7 | 100.0 | 82.3 | 89.3 |
-| DriveVLA-W0 (query) | 98.7 | 99.1 | 95.3 | 99.3 | 83.3 | 90.2 |
-| ReCogDrive | 97.9 | 97.3 | 94.9 | 100.0 | 87.3 | 90.8 |
-| Hydra-MDP++ (V2-99) | 98.6 | 98.6 | 95.1 | 100.0 | 85.7 | 91.0 |
-| iPad | 98.6 | 98.3 | 94.9 | 100.0 | 88.0 | 91.7 |
-| **CoFiDrive (train85k)** | **99.0** | **98.2** | **96.2** | **100.0** | **88.3** | **92.4** |
-| **CoFiDrive (trainval103k)** | **99.0** | **98.4** | **96.0** | **100.0** | **89.6** | **92.9** |
+<div align="center">
 
-The train85k main result is the mean of three independent training seeds. This aggregation does not extend to trainval103k or NavHard.
+<table>
+  <thead>
+    <tr>
+      <th align="left">Method</th>
+      <th align="right">NC ↑</th>
+      <th align="right">DAC ↑</th>
+      <th align="right">TTC ↑</th>
+      <th align="right">Comfort ↑</th>
+      <th align="right">EP ↑</th>
+      <th align="right">PDMS ↑</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td align="left">Ego-stat. MLP</td><td align="right">93.0</td><td align="right">77.3</td><td align="right">83.6</td><td align="right">100.0</td><td align="right">62.8</td><td align="right">65.6</td></tr>
+    <tr><td align="left">UniVLA (base)</td><td align="right">96.9</td><td align="right">91.1</td><td align="right">91.7</td><td align="right">96.7</td><td align="right">76.8</td><td align="right">81.7</td></tr>
+    <tr><td align="left">UniAD</td><td align="right">97.8</td><td align="right">91.9</td><td align="right">92.9</td><td align="right">100.0</td><td align="right">78.8</td><td align="right">83.4</td></tr>
+    <tr><td align="left">LTF</td><td align="right">97.4</td><td align="right">92.8</td><td align="right">92.4</td><td align="right">100.0</td><td align="right">79.0</td><td align="right">83.8</td></tr>
+    <tr><td align="left">PARA-Drive</td><td align="right">97.9</td><td align="right">92.4</td><td align="right">93.0</td><td align="right">99.8</td><td align="right">79.3</td><td align="right">84.0</td></tr>
+    <tr><td align="left">DriveX-S</td><td align="right">97.5</td><td align="right">94.0</td><td align="right">93.0</td><td align="right">100.0</td><td align="right">79.7</td><td align="right">84.5</td></tr>
+    <tr><td align="left">World4Drive</td><td align="right">97.4</td><td align="right">94.3</td><td align="right">92.8</td><td align="right">100.0</td><td align="right">79.9</td><td align="right">85.1</td></tr>
+    <tr><td align="left">DRAMA</td><td align="right">98.0</td><td align="right">93.1</td><td align="right">94.8</td><td align="right">100.0</td><td align="right">80.1</td><td align="right">85.5</td></tr>
+    <tr><td align="left">PRIX</td><td align="right">98.1</td><td align="right">96.3</td><td align="right">94.1</td><td align="right">100.0</td><td align="right">82.3</td><td align="right">87.8</td></tr>
+    <tr><td align="left">DiffusionDrive</td><td align="right">98.2</td><td align="right">96.2</td><td align="right">94.7</td><td align="right">100.0</td><td align="right">82.2</td><td align="right">88.1</td></tr>
+    <tr><td align="left">DIVER</td><td align="right">98.5</td><td align="right">96.5</td><td align="right">94.9</td><td align="right">100.0</td><td align="right">82.6</td><td align="right">88.3</td></tr>
+    <tr><td align="left">AutoVLA (Post-RFT)</td><td align="right">98.4</td><td align="right">95.6</td><td align="right">98.0</td><td align="right">99.9</td><td align="right">81.9</td><td align="right">89.1</td></tr>
+    <tr><td align="left">VADv2</td><td align="right">98.3</td><td align="right">97.4</td><td align="right">95.7</td><td align="right">100.0</td><td align="right">82.3</td><td align="right">89.3</td></tr>
+    <tr><td align="left">DriveVLA-W0 (query)</td><td align="right">98.7</td><td align="right">99.1</td><td align="right">95.3</td><td align="right">99.3</td><td align="right">83.3</td><td align="right">90.2</td></tr>
+    <tr><td align="left">ReCogDrive</td><td align="right">97.9</td><td align="right">97.3</td><td align="right">94.9</td><td align="right">100.0</td><td align="right">87.3</td><td align="right">90.8</td></tr>
+    <tr><td align="left">Hydra-MDP++ (V2-99)</td><td align="right">98.6</td><td align="right">98.6</td><td align="right">95.1</td><td align="right">100.0</td><td align="right">85.7</td><td align="right">91.0</td></tr>
+    <tr><td align="left">iPad</td><td align="right">98.6</td><td align="right">98.3</td><td align="right">94.9</td><td align="right">100.0</td><td align="right">88.0</td><td align="right">91.7</td></tr>
+    <tr><td align="left"><strong>CoFiDrive (train85k)</strong></td><td align="right"><strong>99.0</strong></td><td align="right"><strong>98.2</strong></td><td align="right"><strong>96.2</strong></td><td align="right"><strong>100.0</strong></td><td align="right"><strong>88.3</strong></td><td align="right"><strong>92.4</strong></td></tr>
+    <tr><td align="left"><strong>CoFiDrive (trainval103k)</strong></td><td align="right"><strong>99.0</strong></td><td align="right"><strong>98.4</strong></td><td align="right"><strong>96.0</strong></td><td align="right"><strong>100.0</strong></td><td align="right"><strong>89.6</strong></td><td align="right"><strong>92.9</strong></td></tr>
+  </tbody>
+</table>
+
+</div>
+
+The train85k main result is the mean of three independent training seeds. This aggregation does not extend to trainval103k or NavHard. The trainval103k configuration also uses a resampled long-trajectory target, so its difference from train85k does not isolate dataset size.
 
 ### NAVSIM-v2 NavHard
 
-| Method | EPDMS ↑ |
-| --- | ---: |
-| RAP-DINO | 39.6 |
-| GTRS-DrivoR | 45.8 |
-| DrivoR (local reproduction) | 47.3 |
-| **CoFiDrive** | **48.0** |
+Stage 1 evaluates original observations and Stage 2 evaluates synthetic continuations. CoFiDrive and the local DrivoR baseline use the same 10-epoch training and evaluation protocol. RAP-DINO and GTRS-DrivoR report EPDMS only, so their per-metric cells are left blank. The local 47.3 DrivoR result is distinct from DrivoR's published 48.3 EPDMS.
 
-CoFiDrive and the local DrivoR baseline use the same 10-epoch training and evaluation protocol. The local 47.3 result is distinct from DrivoR's published 48.3 EPDMS.
+<div align="center">
+
+<table>
+  <thead>
+    <tr>
+      <th rowspan="2" align="left">Method</th>
+      <th colspan="9">Stage 1</th>
+      <th colspan="9">Stage 2</th>
+      <th rowspan="2" align="right">EPDMS ↑</th>
+    </tr>
+    <tr>
+      <th align="right">NC</th>
+      <th align="right">DAC</th>
+      <th align="right">DDC</th>
+      <th align="right">TLC</th>
+      <th align="right">EP</th>
+      <th align="right">TTC</th>
+      <th align="right">LK</th>
+      <th align="right">HC</th>
+      <th align="right">EC</th>
+      <th align="right">NC</th>
+      <th align="right">DAC</th>
+      <th align="right">DDC</th>
+      <th align="right">TLC</th>
+      <th align="right">EP</th>
+      <th align="right">TTC</th>
+      <th align="right">LK</th>
+      <th align="right">HC</th>
+      <th align="right">EC</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td align="left">RAP-DINO</td><td align="right">—</td><td align="right">—</td><td align="right">—</td><td align="right">—</td><td align="right">—</td><td align="right">—</td><td align="right">—</td><td align="right">—</td><td align="right">—</td><td align="right">—</td><td align="right">—</td><td align="right">—</td><td align="right">—</td><td align="right">—</td><td align="right">—</td><td align="right">—</td><td align="right">—</td><td align="right">—</td><td align="right">39.6</td></tr>
+    <tr><td align="left">GTRS-DrivoR</td><td align="right">—</td><td align="right">—</td><td align="right">—</td><td align="right">—</td><td align="right">—</td><td align="right">—</td><td align="right">—</td><td align="right">—</td><td align="right">—</td><td align="right">—</td><td align="right">—</td><td align="right">—</td><td align="right">—</td><td align="right">—</td><td align="right">—</td><td align="right">—</td><td align="right">—</td><td align="right">—</td><td align="right">45.8</td></tr>
+    <tr><td align="left">DrivoR (local)</td><td align="right">98.9</td><td align="right">95.3</td><td align="right">99.1</td><td align="right">99.8</td><td align="right">73.0</td><td align="right">99.1</td><td align="right">93.8</td><td align="right">97.6</td><td align="right">64.0</td><td align="right">91.6</td><td align="right">87.3</td><td align="right">92.3</td><td align="right">98.2</td><td align="right">68.6</td><td align="right">89.2</td><td align="right">50.8</td><td align="right">98.5</td><td align="right">76.8</td><td align="right">47.3</td></tr>
+    <tr><td align="left"><strong>CoFiDrive</strong></td><td align="right"><strong>99.1</strong></td><td align="right"><strong>95.3</strong></td><td align="right"><strong>99.0</strong></td><td align="right"><strong>99.6</strong></td><td align="right"><strong>73.9</strong></td><td align="right"><strong>98.7</strong></td><td align="right"><strong>93.6</strong></td><td align="right"><strong>97.6</strong></td><td align="right"><strong>69.3</strong></td><td align="right"><strong>89.6</strong></td><td align="right"><strong>89.3</strong></td><td align="right"><strong>91.8</strong></td><td align="right"><strong>98.7</strong></td><td align="right"><strong>69.7</strong></td><td align="right"><strong>87.6</strong></td><td align="right"><strong>53.3</strong></td><td align="right"><strong>98.7</strong></td><td align="right"><strong>73.9</strong></td><td align="right"><strong>48.0</strong></td></tr>
+  </tbody>
+</table>
+
+</div>
+
+Stage 2 mixes component changes: DAC and LK rise by 2.0 and 2.5 points, while NC, TTC and EC fall by 2.0, 1.6 and 2.9. The aggregate score should therefore not be read as a uniform improvement across safety and compliance measures.
 
 ## Visualizations
 
@@ -97,4 +148,4 @@ Detailed experiment tables and visualization instructions are in `docs/experimen
 
 ## Acknowledgements
 
-CoFiDrive builds on DrivoR, NAVSIM, nuPlan and DINOv2. We thank their authors for sharing their code and evaluation tools. The NAVSIM/DrivoR-derived code retains its Apache-2.0 license in `LICENSE`; the vendored nuPlan dependency retains its license in `nuplan-devkit/LICENSE.txt`.
+CoFiDrive builds on [DrivoR](https://github.com/valeoai/DrivoR), [NAVSIM](https://github.com/autonomousvision/navsim), [nuPlan](https://github.com/motional/nuplan-devkit) and [DINOv2](https://github.com/facebookresearch/dinov2). We thank their authors for sharing their code, data and evaluation tools. The NAVSIM/DrivoR-derived code retains its Apache-2.0 license in [`LICENSE`](LICENSE), and the vendored nuPlan dependency retains its license in [`nuplan-devkit/LICENSE.txt`](nuplan-devkit/LICENSE.txt).
