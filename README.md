@@ -97,4 +97,4 @@ Detailed experiment tables and visualization instructions are in `docs/experimen
 
 ## Acknowledgements
 
-CoFiDrive builds on DrivoR, NAVSIM, nuPlan and DINOv2. We thank their authors for sharing their code and evaluation tools. License terms and upstream attribution are recorded in `LICENSE`, `THIRD_PARTY.md` and `nuplan-devkit/LICENSE.txt`.
+CoFiDrive builds on DrivoR, NAVSIM, nuPlan and DINOv2. We thank their authors for sharing their code and evaluation tools. The NAVSIM/DrivoR-derived code retains its Apache-2.0 license in `LICENSE`; the vendored nuPlan dependency retains its license in `nuplan-devkit/LICENSE.txt`.
