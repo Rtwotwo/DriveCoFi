@@ -1,6 +1,6 @@
 # CoFiDrive: method and implementation
 
-[Project page](https://rtwotwo.github.io/DriveCoFi/) · [Experiments](experiments.md) · [Reproduction](reproduction.md)
+[README](../README.md) · [Experiments](experiments.md) · [Reproduction](reproduction.md)
 
 CoFiDrive generates 64 candidate trajectories from a compact scene representation,
 then scores them using scene context and spatial image features. TC changes the

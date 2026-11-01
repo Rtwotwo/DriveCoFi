@@ -1,10 +1,10 @@
 # Training and evaluation guide
 
-[Installation](../README.md#-getting-started) · [Method and configuration](method.md) · [Reported results](experiments.md)
+[Installation](setup.md) · [Method and configuration](method.md) · [Reported results](experiments.md)
 
 ## Prepare the environment
 
-Install the dependencies and the vendored nuPlan package as described in the README.
+Install the dependencies and the vendored nuPlan package as described in the installation guide.
 Download the NAVSIM images/logs, nuPlan maps and DINOv2 register weights separately.
 Point the pretrained model setting in
 [more_ccs.yaml](../navsim/planning/script/config/common/agent/more_ccs.yaml) to the local
@@ -44,7 +44,8 @@ experiment names for separate runs.
 ```bash
 CHECKPOINT=/path/to/checkpoint.ckpt NUM_GPUS=1 \
   EXPERIMENT_NAME=cofidrive/navtest_seed2 \
-  bash scripts/release/eval_navsim_v1.sh
+  bash scripts/release/eval_navsim_v1.sh \
+  metric_cache_path="$NAVSIM_EXP_ROOT/navtest_metric_cache"
 ```
 
 The evaluation wrapper fixes `proposal_num=64` and

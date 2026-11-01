@@ -1,6 +1,6 @@
 # Experiments and reported results
 
-[Interactive results](https://rtwotwo.github.io/DriveCoFi/#results) · [Method](method.md)
+[README](../README.md#results) · [Method](method.md)
 
 The values below reproduce the current paper's tables. All CoFiDrive configurations
 use 10 training epochs. They are displayed without recomputing scores from component means.
