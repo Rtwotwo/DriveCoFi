@@ -6,6 +6,8 @@ on:
     paths:
       - 'site/**'
       - '.github/workflows/pages.yml'
+      - 'tools/check_site.py'
+      - 'README.md'
   workflow_dispatch:
 
 permissions:
@@ -25,6 +27,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Check project-page links and assets
+        run: python3 tools/check_site.py
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

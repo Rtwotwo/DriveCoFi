@@ -1,102 +1,106 @@
-<div align="center">
+<h1 align="center">🚗 CoFiDrive: Scene-Conditioned Registers and<br>Coarse-to-Fine Trajectory Scoring for End-to-End Driving</h1>
 
-# CoFiDrive
+<p align="center">
+  <img src="https://img.shields.io/badge/arXiv-B31B1B?logo=arxiv&amp;logoColor=white" alt="arXiv" title="Paper link forthcoming" height="24">
+  <a href="https://github.com/Rtwotwo/DriveCoFi"><img src="https://img.shields.io/badge/GitHub-181717?logo=github&amp;logoColor=white" alt="GitHub repository" height="24"></a>
+  <a href="https://rtwotwo.github.io/DriveCoFi/"><img src="https://img.shields.io/badge/GitHub.io-2563EB?logo=githubpages&amp;logoColor=white" alt="GitHub Pages project website" height="24"></a>
+</p>
 
-### Scene-Conditioned Registers and Coarse-to-Fine Trajectory Scoring for End-to-End Driving
+<p align="center">
+  <a href="#-overview">Overview</a> ·
+  <a href="#-results">Results</a> ·
+  <a href="#-visualizations">Visualizations</a> ·
+  <a href="#-getting-started">Getting started</a> ·
+  <a href="#-training-and-evaluation">Training &amp; evaluation</a>
+</p>
 
-[Project page](https://rtwotwo.github.io/DriveCoFi/) · [Method](#method) · [Installation](#installation) · [Training and evaluation](#training-and-evaluation)
+## 📰 News
 
-<img src="site/assets/images/Figure1.webp" alt="CoFiDrive architecture: register refinement, dual-channel scoring and training-only control-space augmentation" width="100%">
+- **2026.11.01** — Released the CoFiDrive implementation, training and evaluation launchers, and project-page source.
 
-</div>
+## 🔍 Overview
 
-CoFiDrive is a vision-based trajectory planner built on NAVSIM. It uses four camera views,
-each with 16 learned registers, to form a fixed 64-token scene memory. The semantic
-token compressor (TC) refines this memory with a scene-conditioned soft mixture of
-six SwiGLU experts; all experts remain active. A Cross-Compression Scorer (CCS)
-combines the scene memory with pooled spatial patch features when ranking generated
-trajectories. During training, control-space augmentation (CSA) adds perturbed,
-bicycle-model-rolled-out candidates to the scorer's auxiliary supervision. CSA is
-disabled at inference: CCS ranks only the generator's original 64 proposals.
+<p align="center">
+  <a href="site/assets/source/Figure1.svg"><img src="site/assets/images/Figure1.webp" alt="CoFiDrive architecture: TC refines camera registers, CCS scores trajectories with scene and patch memories, and CSA augments scorer training" width="100%"></a>
+</p>
 
-The camera-register bottleneck provides the token reduction. TC **does not** reduce
-the number of tokens further. Coarse-to-fine refers to the visual evidence used for
-scoring, **not** to a cascade that removes trajectory candidates.
+**CoFiDrive combines scene-conditioned visual features, dual-memory trajectory scoring, and control-space augmentation for end-to-end driving.** Generating a maneuver requires road and traffic context; choosing among nearby trajectories also depends on local spatial details. CoFiDrive uses a compact scene memory for trajectory generation and gives the scorer access to both that memory and spatial image features. Training adds motion alternatives around promising proposals to improve the scorer's ability to compare candidates.
 
-## Results
+The method has three components:
 
-| Evaluation | Training split | Epochs | Result |
-| --- | --- | ---: | ---: |
-| NAVSIM-v1 navtest | train85k | 10 | 92.4 PDMS |
-| NAVSIM-v1 navtest | trainval103k | 10 | 92.9 PDMS |
-| NAVSIM-v2 NavHard | matched 10-epoch protocol | 10 | 48.0 EPDMS |
+- **TC · Semantic Token Compressor.** Four cameras contribute 16 learned registers each. A scene-level router mixes six SwiGLU experts to refine the resulting 64 scene tokens, which serve both the generator and scorer. The camera registers provide the compact representation; TC adapts their features to the scene while retaining all 64 tokens.
+- **CCS · Cross-Compression Scorer.** Each proposal attends to the refined scene memory and 1,008 pooled image-patch tokens. A candidate-dependent gate combines the two responses to predict trajectory quality. Coarse-to-fine describes these two levels of visual detail.
+- **CSA · Control-Space Augmentation.** During training, the top 16 proposals ranked by the PDM evaluator each seed 12 acceleration and yaw-rate perturbations. A bicycle model converts them into trajectories for auxiliary CCS supervision. The training list contains 192 augmentation slots and the original 64 proposals; unsuccessful slots retain their seed trajectories.
 
-The train85k headline result is the mean of three independently seeded training
-runs. The other rows and the ablations should not be read as three-seed averages.
-These are benchmark scores, not closed-loop or on-road safety measurements.
+**At inference, CCS scores the original 64 generated proposals.** CSA expands training supervision without adding inference candidates or model parameters.
 
-## Method
+<p align="center">
+  <a href="https://rtwotwo.github.io/DriveCoFi/#method">Method details</a> ·
+  <a href="site/assets/source/Figure1.pdf">Architecture PDF</a> ·
+  <a href="site/assets/source/Figure1.svg">Architecture SVG</a>
+</p>
 
-1. **TC — scene-conditioned register refinement.** A scene-level router assigns
-   weights to six active experts; 64 input registers remain 64 output scene tokens.
-2. **CCS — two granularities of visual evidence.** Each trajectory query attends
-   to the refined scene tokens and 1,008 pooled image-patch tokens. A
-   candidate-dependent gate combines the two responses. The patch-backbone
-   output is detached on the CCS patch path.
-3. **CSA — training-only scorer supervision.** The top 16 PDM-ranked proposals
-   seed 12 control-space variants each. Acceleration and yaw-rate perturbations
-   are rolled out with a bicycle model, checked for validity, and scored by the
-   PDM evaluator alongside the original 64 proposals. Invalid augmentation
-   slots fall back to their seeds. Neither CSA nor PDM target computation runs
-   during inference.
+## 📊 Results
 
-For the figures and qualitative comparison, see the [project page](https://rtwotwo.github.io/DriveCoFi/).
-The static page source is in [`site/`](site/); GitHub Pages can deploy it using
-[the included workflow](.github/workflows/pages.yml).
+| Benchmark | Training split / setting | Training epochs | Metric | CoFiDrive |
+| :--- | :--- | :---: | :---: | ---: |
+| NAVSIM-v1 · navtest | train85k | 10 | PDMS ↑ | **92.4** |
+| NAVSIM-v1 · navtest | trainval103k | 10 | PDMS ↑ | **92.9** |
+| NAVSIM-v2 · NavHard | NavHard training protocol | 10 | EPDMS ↑ | **48.0** |
 
-## Repository layout
+The train85k main result is averaged over three independently seeded training runs. NAVSIM-v1 and NavHard use their respective benchmark evaluation protocols. See the [project page](https://rtwotwo.github.io/DriveCoFi/#results) for results and the sequential component ablation.
 
-```text
-navsim/             NAVSIM framework and CoFiDrive agents/configs
-  agents/more_ccs/  Full TC + CCS + CSA implementation (agent=more_ccs)
-  agents/more_dual/ Dual-channel variant
-  agents/more_tc/   TC variant
-nuplan-devkit/      Vendored nuPlan dependency, with its own license
-scripts/release/    Portable train/eval wrappers for new users
-scripts/           Original experiment launchers; some retain local GPU or checkpoint defaults
-download/          Benchmark data download helpers
-viz/               Visualization code (generated outputs omitted)
-site/              Static project page and selected paper figures
-```
+## 🎬 Visualizations
 
-The internal Hydra key remains `agent=more_ccs` for checkpoint compatibility;
-the paper and public-facing method name are **CoFiDrive**. The original launchers
-under `scripts/training/` and `scripts/evaluation/` record experiment-specific
-settings, including fixed GPU IDs and checkpoint names. Use `scripts/release/`
-for a fresh run.
+### Trajectory planning
 
-## Installation
+The following panels compare DrivoR and CoFiDrive on the same NAVSIM-v1 scene. Each planner generates and scores its own candidates. Blue lines show proposals; yellow shows the selected trajectory.
 
-The code expects Linux, a CUDA-capable PyTorch installation, Python 3.9, NAVSIM
-datasets and nuPlan maps. The benchmark data and pretrained model weights are not
-redistributed here. Review package versions against your CUDA driver before
-installing; the original environment was developed with PyTorch 2.1.
+<table align="center">
+  <tr>
+    <td align="center" width="50%"><strong>DrivoR</strong></td>
+    <td align="center" width="50%"><strong>CoFiDrive</strong></td>
+  </tr>
+  <tr>
+    <td><a href="site/assets/source/Figure2_1.pdf"><img src="site/assets/images/Figure2_1.webp" alt="DrivoR trajectory proposals and selected trajectory at an urban intersection" width="100%"></a></td>
+    <td><a href="site/assets/source/Figure2_2.pdf"><img src="site/assets/images/Figure2_2.webp" alt="CoFiDrive trajectory proposals and selected trajectory at the same intersection" width="100%"></a></td>
+  </tr>
+</table>
+
+### Register attention
+
+Selected camera-register attention maps show how the compact scene representation attends to the observed scene. The figure compares DrivoR above with CoFiDrive below; columns show the image, individual registers, and mean attention.
+
+<p align="center">
+  <a href="site/assets/source/Figure3_1_new.pdf"><img src="site/assets/images/Figure3_1_new.webp" alt="Front and rear camera-register attention maps for DrivoR and CoFiDrive" width="100%"></a>
+</p>
+
+<p align="center"><a href="https://rtwotwo.github.io/DriveCoFi/#evidence">View the full visualization gallery</a></p>
+
+## 🛠️ Getting started
+
+### Installation
+
+Use Linux with Python 3.9 and a CUDA-compatible PyTorch installation. The original environment uses PyTorch 2.1; dependency versions are listed in [requirements.txt](requirements.txt) and [environment.yml](environment.yml).
 
 ```bash
+git clone https://github.com/Rtwotwo/DriveCoFi.git
+cd DriveCoFi
+
 conda create -n cofidrive python=3.9 -y
 conda activate cofidrive
-# Install a CUDA-compatible PyTorch build for your host first.
+
+# Install the PyTorch build appropriate for your CUDA environment first.
 pip install -r requirements.txt
 pip install -e ./nuplan-devkit
 pip install -e .
 ```
 
-Download NAVSIM according to the [official instructions](https://github.com/autonomousvision/navsim)
-and provide the pretrained DINOv2 `vit_small_patch14_reg4_dinov2.lvd142m`
-weights from [timm/Hugging Face](https://huggingface.co/timm/vit_small_patch14_reg4_dinov2.lvd142m)
-at `weights/vit_small_patch14_reg4_dinov2.lvd142m/model.safetensors`, or
-adjust the path in [`more_ccs.yaml`](navsim/planning/script/config/common/agent/more_ccs.yaml).
-Never commit the weights or the dataset to this repository.
+### Data and pretrained weights
+
+1. Prepare the NAVSIM data and nuPlan maps using the [NAVSIM instructions](https://github.com/autonomousvision/navsim) and the local [installation guide](docs/install.md).
+2. Download the [DINOv2 ViT-S/14 register weights](https://huggingface.co/timm/vit_small_patch14_reg4_dinov2.lvd142m). Place `model.safetensors` at `weights/vit_small_patch14_reg4_dinov2.lvd142m/model.safetensors`, or update the path in [more_ccs.yaml](navsim/planning/script/config/common/agent/more_ccs.yaml).
+3. Set the data, map, and experiment paths:
 
 ```bash
 export OPENSCENE_DATA_ROOT=/path/to/navsim/dataset
@@ -105,43 +109,62 @@ export NAVSIM_EXP_ROOT=/path/to/experiment/output
 export CUDA_VISIBLE_DEVICES=0
 ```
 
-The metric caches required by NAVSIM must be prepared before scoring. Refer to
-[`docs/install.md`](docs/install.md), [`docs/splits.md`](docs/splits.md), and
-the original [`scripts/evaluation/run_metric_caching.sh`](scripts/evaluation/run_metric_caching.sh)
-for benchmark-specific paths.
+Prepare the metric cache before evaluation. See [dataset splits](docs/splits.md) and the [metric-caching launcher](scripts/evaluation/run_metric_caching.sh) for the required configuration. Datasets, pretrained weights, and trained checkpoints are obtained separately.
 
-## Training and evaluation
+## 🚀 Training and evaluation
+
+### NAVSIM-v1 training
+
+The release launcher trains on train85k for 10 epochs:
 
 ```bash
-# train85k, 10 epochs; override SEED, NUM_GPUS or Hydra settings as needed
 SEED=2 NUM_GPUS=1 bash scripts/release/train_navsim_v1.sh
+```
 
-# evaluation uses the same 64 inference proposals and disables CSA
+Environment variables control the seed, batch size, number of GPUs, and output name. Additional Hydra options can be appended to the command:
+
+```bash
+CUDA_VISIBLE_DEVICES=0,1,2,3 SEED=3 NUM_GPUS=4 BATCH_SIZE=16 \
+  EXPERIMENT_NAME=cofidrive/train85k_seed3 \
+  bash scripts/release/train_navsim_v1.sh
+```
+
+### NAVSIM-v1 evaluation
+
+Set `CHECKPOINT` to the trained model and run navtest evaluation:
+
+```bash
 CHECKPOINT=/path/to/checkpoint.ckpt NUM_GPUS=1 \
   bash scripts/release/eval_navsim_v1.sh
 ```
 
-The wrappers forward additional arguments to the underlying Hydra entry points.
-For example, `SEED=3 NUM_GPUS=4 bash scripts/release/train_navsim_v1.sh`
-changes the training seed and GPU count. The wrappers have
-been syntax-checked; full training/evaluation still requires the data, model
-weights and a suitable GPU environment.
+The evaluation launcher keeps 64 proposals and disables trajectory expansion. The Hydra agent key remains `agent=more_ccs` to preserve the existing configuration and checkpoint interfaces.
 
-NAVSIM-v2 NavHard uses a separate two-stage synthetic-scene evaluation protocol.
-Do not evaluate a NavHard checkpoint with the NAVSIM-v1 wrapper and call the
-result EPDMS. The relevant entry point is
-[`run_pdm_score_gpu_v2.py`](navsim/planning/script/run_pdm_score_gpu_v2.py).
+### NAVSIM-v2 evaluation
 
-## Qualitative material
+NavHard uses a separate two-stage EPDMS protocol. Its evaluation entry point is [run_pdm_score_gpu_v2.py](navsim/planning/script/run_pdm_score_gpu_v2.py); configure the NavHard data, caches, and checkpoint for that evaluator.
 
-The project page displays the manuscript's architecture and selected NAVSIM
-figures. Figure 2 compares two planners on the same scene, but they generate
-their **own** candidate sets; the images do not establish scorer accuracy on a
-shared candidate set. Figure 3 visualizes selected register attention maps.
+## 📁 Repository structure
 
-## Attribution and license
+```text
+navsim/
+  agents/more_ccs/       Full CoFiDrive model: TC + CCS + CSA
+  agents/more_dual/      Dual-channel variant
+  agents/more_tc/        TC variant
+  planning/script/      Training, evaluation, and Hydra configurations
+scripts/release/        Portable NAVSIM-v1 launchers
+scripts/                Original experiment launchers
+docs/                   Installation and dataset documentation
+download/               Dataset download helpers
+nuplan-devkit/          nuPlan dependency
+viz/                    Planning visualization tools
+site/                   Project website and paper figures
+```
 
-This repository includes NAVSIM and a vendored nuPlan devkit. See
-[`THIRD_PARTY.md`](THIRD_PARTY.md), the top-level [`LICENSE`](LICENSE), and
-[`nuplan-devkit/LICENSE.txt`](nuplan-devkit/LICENSE.txt). Dataset images,
-map assets and pretrained weights remain subject to their publishers' terms.
+The original experiment launchers retain experiment-specific GPU and checkpoint settings. Use `scripts/release/` as the starting point for a new environment.
+
+## 🙏 Acknowledgements
+
+CoFiDrive builds on [DrivoR](https://github.com/valeoai/DrivoR) for register-based driving, [NAVSIM](https://github.com/autonomousvision/navsim) for training and evaluation, [nuPlan](https://github.com/motional/nuplan-devkit) for maps and planning utilities, and [DINOv2](https://github.com/facebookresearch/dinov2) for visual representations. We thank their authors for making these resources available.
+
+For source-code licenses and attribution, see [LICENSE](LICENSE), [THIRD_PARTY.md](THIRD_PARTY.md), and the [nuPlan license](nuplan-devkit/LICENSE.txt).

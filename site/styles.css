@@ -5,6 +5,7 @@ body{margin:0;background:var(--paper);font-family:Inter,"Segoe UI",Arial,sans-se
 button,a{-webkit-tap-highlight-color:transparent}
 a{color:inherit}
 img{display:block;max-width:100%}
+.paper-badge{display:inline-flex;align-items:center;justify-content:center;align-self:center}
 .wrap{width:min(1260px,calc(100% - 64px));margin-inline:auto}
 .skip-link{position:absolute;left:-999px;top:10px;z-index:20;padding:10px;background:#fff}.skip-link:focus{left:10px}
 .site-header{position:sticky;top:0;z-index:12;border-bottom:1px solid rgba(221,230,235,.9);background:rgba(247,249,251,.93);backdrop-filter:blur(18px)}
