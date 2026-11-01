@@ -16,7 +16,7 @@
 
 ## 📰 News
 
-- **2026.11.01** — Released the CoFiDrive implementation, training and evaluation launchers, and project-page source.
+- **2026.11.01** — Released the code and expanded project website: 16 paired scenes, four-camera attention, saved CSA trajectories and interactive ablation results.
 
 ## 🔍 Overview
 
@@ -36,7 +36,6 @@ The method has three components:
 
 <p align="center">
   <a href="https://rtwotwo.github.io/DriveCoFi/#method">Method details</a> ·
-  <a href="site/assets/source/Figure1.pdf">Architecture PDF</a> ·
   <a href="site/assets/source/Figure1.svg">Architecture SVG</a>
 </p>
 
@@ -52,30 +51,67 @@ The train85k main result is averaged over three independently seeded training ru
 
 ## 🎬 Visualizations
 
-### Trajectory planning
+The [project website](https://rtwotwo.github.io/DriveCoFi/) provides **16 paired planning scenes**, a **four-camera attention explorer**, **five saved CSA trajectory sets**, and **six ablation views**. The gallery opens images directly; the trajectory and result explorers are rendered in the browser.
 
-The following panels compare DrivoR and CoFiDrive on the same NAVSIM-v1 scene. Each planner generates and scores its own candidates. Blue lines show proposals; yellow shows the selected trajectory.
+### Straight driving, left turns and right turns
+
+Each pair shows the same scene for DrivoR and CoFiDrive. Blue curves are proposals, yellow marks the selected trajectory, and white denotes the reference where shown. Each planner generates and scores its own candidates.
 
 <table align="center">
+  <tr><th>Maneuver</th><th>DrivoR</th><th>CoFiDrive</th></tr>
   <tr>
-    <td align="center" width="50%"><strong>DrivoR</strong></td>
-    <td align="center" width="50%"><strong>CoFiDrive</strong></td>
+    <td>Straight</td>
+    <td><a href="https://rtwotwo.github.io/DriveCoFi/#evidence"><img src="site/assets/gallery/straight-1-drivor.webp" alt="DrivoR straight-driving example" width="360"></a></td>
+    <td><a href="https://rtwotwo.github.io/DriveCoFi/#evidence"><img src="site/assets/gallery/straight-1-cofidrive.webp" alt="CoFiDrive straight-driving example" width="360"></a></td>
   </tr>
   <tr>
-    <td><a href="site/assets/source/Figure2_1.pdf"><img src="site/assets/images/Figure2_1.webp" alt="DrivoR trajectory proposals and selected trajectory at an urban intersection" width="100%"></a></td>
-    <td><a href="site/assets/source/Figure2_2.pdf"><img src="site/assets/images/Figure2_2.webp" alt="CoFiDrive trajectory proposals and selected trajectory at the same intersection" width="100%"></a></td>
+    <td>Left turn</td>
+    <td><a href="https://rtwotwo.github.io/DriveCoFi/#evidence"><img src="site/assets/gallery/left-turn-1-drivor.webp" alt="DrivoR left-turn example" width="360"></a></td>
+    <td><a href="https://rtwotwo.github.io/DriveCoFi/#evidence"><img src="site/assets/gallery/left-turn-1-cofidrive.webp" alt="CoFiDrive left-turn example" width="360"></a></td>
+  </tr>
+  <tr>
+    <td>Right turn</td>
+    <td><a href="https://rtwotwo.github.io/DriveCoFi/#evidence"><img src="site/assets/gallery/right-turn-1-drivor.webp" alt="DrivoR right-turn example" width="360"></a></td>
+    <td><a href="https://rtwotwo.github.io/DriveCoFi/#evidence"><img src="site/assets/gallery/right-turn-1-cofidrive.webp" alt="CoFiDrive right-turn example" width="360"></a></td>
   </tr>
 </table>
 
-### Register attention
+<p align="center"><a href="https://rtwotwo.github.io/DriveCoFi/#evidence"><strong>Browse all 16 matched scenes →</strong></a></p>
 
-Selected camera-register attention maps show how the compact scene representation attends to the observed scene. The figure compares DrivoR above with CoFiDrive below; columns show the image, individual registers, and mean attention.
+### Camera-register attention
 
-<p align="center">
-  <a href="site/assets/source/Figure3_1_new.pdf"><img src="site/assets/images/Figure3_1_new.webp" alt="Front and rear camera-register attention maps for DrivoR and CoFiDrive" width="100%"></a>
-</p>
+Choose a camera and an individual register in the [attention explorer](https://rtwotwo.github.io/DriveCoFi/#attention). It includes front, left, right and rear views, with RGB, registers 0/4/8/12 and mean attention: 48 independent image panels in total.
 
-<p align="center"><a href="https://rtwotwo.github.io/DriveCoFi/#evidence">View the full visualization gallery</a></p>
+<table align="center">
+  <tr><th>DrivoR · front mean attention</th><th>CoFiDrive · front mean attention</th></tr>
+  <tr>
+    <td><a href="https://rtwotwo.github.io/DriveCoFi/#attention"><img src="site/assets/gallery/attention-f0-drivor-5.webp" alt="DrivoR front-camera mean attention" width="413"></a></td>
+    <td><a href="https://rtwotwo.github.io/DriveCoFi/#attention"><img src="site/assets/gallery/attention-f0-cofidrive-5.webp" alt="CoFiDrive front-camera mean attention" width="413"></a></td>
+  </tr>
+</table>
+
+### CSA: inspect the saved trajectory candidates
+
+The explorer draws the original 64 and augmented 192 entries from five saved caches. Toggle trajectory layers and reveal the eight future poses. The plotted coordinates are stored outputs; the time control reveals waypoints rather than playing driving footage.
+
+<p align="center"><a href="https://rtwotwo.github.io/DriveCoFi/#augmentation"><img src="site/assets/images/csa-preview.svg" alt="Original candidate trajectories and the larger CSA training list, drawn from the same saved scene" width="100%"></a></p>
+
+<p align="center"><a href="https://rtwotwo.github.io/DriveCoFi/#augmentation"><strong>Open the interactive CSA explorer →</strong></a></p>
+
+### Ablations and NavHard metrics
+
+Switch between sequential additions, register processing, fusion, supervision, token counts and expert counts. The NavHard view compares all nine component metrics for both evaluation stages against the local DrivoR reproduction.
+
+<p align="center"><a href="https://rtwotwo.github.io/DriveCoFi/#results"><img src="site/assets/images/ablation-summary.svg" alt="Sequential component ablation from 91.70 to 92.40 PDMS" width="100%"></a></p>
+
+## 📚 Documentation
+
+| Guide | Contents |
+| --- | --- |
+| [Method and implementation](docs/method.md) | TC / CCS / CSA, memory shapes, gradient paths, scoring and code locations |
+| [Experiments and results](docs/experiments.md) | Main results, all ablation groups, NavHard breakdown and comparison settings |
+| [Visualization guide](docs/visualizations.md) | Gallery legends, saved CSA data, attention commands and asset provenance |
+| [Training and evaluation](docs/reproduction.md) | Data setup, train85k launchers, checkpoint evaluation and configuration checks |
 
 ## 🛠️ Getting started
 

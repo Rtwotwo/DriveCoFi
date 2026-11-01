@@ -1,0 +1,16 @@
+{
+  "ablations": [
+    {"id":"sequential","title":"Sequential additions","source":"Main paper, Table 3","context":"Train85k, 10 epochs and 64 inference candidates are fixed. Each step is conditional on the preceding components.","note":"TC adds 0.10 points, dual-memory CCS adds 0.10, and CSA adds 0.50 in this sequence. The full configuration scores 0.70 points above the base.","rows":[["Base planner",91.70],["+ TC",91.80],["+ Dual-memory CCS",91.90],["+ CSA",92.40]]},
+    {"id":"routing","title":"Register processing","source":"Appendix B, Table B.4","context":"Dual-memory CCS and CSA are fixed. The register transformation changes.","note":"Scene routing is 0.22 points above uniform expert mixing and 0.28 above the single-SwiGLU control.","rows":[["Bypass TC",92.05],["Single SwiGLU",92.12],["Uniform 6-expert mix",92.18],["Scene-routed 6-expert mix",92.40]]},
+    {"id":"fusion","title":"Memory fusion","source":"Appendix B, Table B.5","context":"TC, both visual memories and the CSA candidate list are fixed.","note":"Candidate-dependent gating scores 0.16 points above equal averaging.","rows":[["Equal averaging",92.24],["Candidate-dependent gate",92.40]]},
+    {"id":"supervision","title":"Scorer supervision","source":"Appendix B, Table B.5","context":"TC and both memories are fixed. The two auxiliary-supervision settings use 256 entries and the same loss weight.","note":"CSA scores 0.40 points above repeating the original candidates four times. CSA does not add model parameters or inference candidates.","rows":[["No auxiliary supervision",91.90],["Original 64 × 4",92.00],["Original 64 + CSA 192",92.40]]},
+    {"id":"tokens","title":"Registers per camera","source":"Main paper, Table 4","context":"Separate train85k/navtest sweep with CCS and CSA enabled. Compare settings within this sweep.","note":"The sweep default is 91.85, while the sequential-ablation default is 92.40. The paper does not establish the source of this run-group difference.","rows":[["16 registers / camera",91.85],["32 registers / camera",91.66],["64 registers / camera",91.66]]},
+    {"id":"experts","title":"Expert count","source":"Main paper, Table 4","context":"Separate train85k/navtest sweep; all configured experts remain active.","note":"Six experts give the highest reported score within this sweep. These point differences are not estimates of statistical significance.","rows":[["4 experts",91.54],["6 experts",91.85],["8 experts",91.59]]}
+  ],
+  "navhard": {
+    "source":"Main paper, Table 2",
+    "metrics":["NC","DAC","DDC","TLC","EP","TTC","LK","HC","EC"],
+    "stage1":{"drivor":[98.9,95.3,99.1,99.8,73.0,99.1,93.8,97.6,64.0],"cofidrive":[99.1,95.3,99.0,99.6,73.9,98.7,93.6,97.6,69.3]},
+    "stage2":{"drivor":[91.6,87.3,92.3,98.2,68.6,89.2,50.8,98.5,76.8],"cofidrive":[89.6,89.3,91.8,98.7,69.7,87.6,53.3,98.7,73.9]}
+  }
+}
