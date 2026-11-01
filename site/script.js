@@ -112,10 +112,19 @@ function initCSA(cases) {
       const attrs={points:pts.map(p=>p.join(',')).join(' '),fill:'none',stroke:color,'stroke-width':width,'stroke-opacity':opacity,'stroke-linejoin':'round','stroke-linecap':'round'};
       if(dash) attrs['stroke-dasharray']=dash;
       plot.append(svgNode('polyline',attrs));
-      if(dots) pts.slice(1).forEach((p,i)=>{
-        plot.append(svgNode('circle',{cx:p[0],cy:p[1],r:4,fill:color,stroke:'#fff','stroke-width':1}));
-        if(color==='#bd7e00') plot.append(svgNode('text',{x:p[0]+7,y:p[1]-5,fill:'#7e5300','font-size':11},String(i+1)));
-      });
+      if(dots) {
+        const previousLabelY=[Infinity,Infinity];
+        pts.slice(1).forEach((p,i)=>{
+          plot.append(svgNode('circle',{cx:p[0],cy:p[1],r:4,fill:color,stroke:'#fff','stroke-width':1}));
+          if(color==='#bd7e00') {
+            const side=i%2, labelX=p[0]+(side?16:-16);
+            const labelY=Math.min(p[1]-5,previousLabelY[side]-14);
+            previousLabelY[side]=labelY;
+            plot.append(svgNode('line',{x1:p[0],y1:p[1],x2:labelX,y2:labelY-3,stroke:'#b89142','stroke-width':.7}));
+            plot.append(svgNode('text',{x:labelX,y:labelY,'text-anchor':side?'start':'end',fill:'#7e5300','font-size':11},String(i+1)));
+          }
+        });
+      }
     }
     if($('show-augmented').checked) scene.augmented.forEach(p=>path(p,'#9273b5',1,.25,false));
     if($('show-original').checked) scene.original.forEach(p=>path(p,'#197aaf',1.2,.38,false));
